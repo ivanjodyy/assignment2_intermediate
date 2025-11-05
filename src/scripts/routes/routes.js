@@ -10,7 +10,6 @@ const routes = {
   '/about': new AboutPage(),
   '/login': new LoginPage(),
   '/register': new RegisterPage(),
-  // /detail/:id di-handle dinamis di app.js
 };
 
 export default routes;

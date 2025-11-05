@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#0f172a" />
   <link rel="icon" href="favicon.png" />
 
-  <!-- Leaflet -->
+  
   <link rel="stylesheet"
         href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
@@ -45,10 +45,7 @@
   <a class="skip-link" href="#main-content" style="position:absolute;left:-9999px;top:-9999px">Lewati ke konten</a>
   <main id="main-content" tabindex="-1"></main>
 
-  <!-- TIDAK ADA tag <script src="app.bundle.js"> di sini.
-       HtmlWebpackPlugin akan menyuntikkan tag <script> yang benar saat build. -->
 
-  <!-- Detektor boot: kalau JS tidak pernah jalan, tampilkan pesan -->
   <script>
     setTimeout(function () {
       if (!window.__APP_BOOTED__) {

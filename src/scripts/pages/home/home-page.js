@@ -10,7 +10,7 @@ export default class HomePage {
         <form id="filter-form" class="filter-form" role="search">
           <label for="q">Cari cerita</label>
           <input id="q" name="q" type="search" placeholder="Ketik judul/desk..." />
-          <button type="submit">Filter</button>
+          <button type="submit">Cari</button>
         </form>
 
         <div class="layout">

@@ -15,7 +15,6 @@ class App {
 
     window.addEventListener('hashchange', () => this.renderPage());
 
-    // Logout
     document.addEventListener('click', (e) => {
       if (e.target?.id === 'logout-link') {
         e.preventDefault();
@@ -45,23 +44,27 @@ class App {
     if (logout) logout.style.display = hasToken ? '' : 'none';
   }
 
-  _setupDrawer() {
+    _setupDrawer() {
     const btn = this.#drawerButton;
     const drawer = this.#navigationDrawer;
+    if (!btn || !drawer) return;
+
     btn.addEventListener('click', () => {
       const expanded = btn.getAttribute('aria-expanded') === 'true';
       btn.setAttribute('aria-expanded', String(!expanded));
       drawer.classList.toggle('open');
-      if (drawer.classList.contains('open')) drawer.querySelector('a,button')?.focus();
+      if (drawer.classList.contains('open')) {
+        drawer.querySelector('a,button')?.focus();
+      }
     });
+
     drawer.addEventListener('click', (e) => {
       if (e.target.matches('a')) {
         drawer.classList.remove('open');
-        this.#drawerButton.setAttribute('aria-expanded', 'false');
+        btn.setAttribute('aria-expanded', 'false');
       }
     });
   }
-
   async renderPage() {
     this.#content.innerHTML = `<section class="page"><p>Memuat halaman…</p></section>`;
     this._setupAuthNav();
@@ -77,7 +80,7 @@ class App {
       const url = getActiveRoute() || '/';
       let page = routes[url];
 
-      // dukung /detail/:id dinamis
+
       if (!page && url.startsWith('/detail/')) {
         try {
           const mod = await import('../pages/detail/detail-page');

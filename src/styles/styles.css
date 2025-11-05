@@ -53,3 +53,10 @@ button:hover, button:focus { background: #1e40af; outline: none; }
 
 @view-transition { navigation: auto; }
 ::view-transition-old(root), ::view-transition-new(root) { animation-duration: 200ms; }
+
+#drawer-button,
+.drawer-btn,
+[aria-controls="navigation-drawer"],
+#navigation-drawer {
+  display: none !important;
+}
