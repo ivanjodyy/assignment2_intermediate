@@ -1,0 +1,14 @@
+APP_URL=<ISI_URL_DEPLOY_KAMU>
+STORY_API_BASE_URL=https://story-api.dicoding.dev/v1
+VAPID_PUBLIC_KEY=<ISI_VAPID_PUBLIC_KEY_ANDA>
+
+CATATAN:
+- Push bisa dites via DevTools > Application > Service Workers > Push (payload JSON):
+  {"title":"Cerita baru","body":"Buka untuk lihat detail","id":"<ID cerita>","icon":"/favicon.png"}
+- Tombol Install & toggle Push ada di halaman #/about
+- Offline:
+  * App shell & halaman tetap tampil.
+  * Data API (GET) dicache SWR; saat offline masih muncul daftar terakhir.
+  * Tambah data saat offline masuk antrean (Outbox) & disinkronkan saat online (Background Sync).
+- IndexedDB:
+  * Tombol "Simpan" pada kartu beranda → tersimpan pada DB lokal (CRUD tersedia).
