@@ -9,7 +9,6 @@
   <meta name="theme-color" content="#0f172a" />
   <link rel="icon" href="favicon.png" />
 
-  
   <link rel="stylesheet"
         href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
@@ -34,17 +33,21 @@
     <button id="drawer-button" class="drawer-btn" aria-expanded="false" aria-controls="navigation-drawer">≡</button>
     <a class="brand" href="#/">📍 CeritaPeta</a>
     <div id="navigation-drawer" hidden></div>
+
     <a href="#/">Beranda</a>
     <a href="#/add">Tambah</a>
     <a id="login-link" href="#/login">Login</a>
     <a id="register-link" href="#/register">Register</a>
     <a id="logout-link" href="#/" style="display:none">Logout</a>
+
+    <!-- Tambahkan link Tersimpan -->
+    <a href="#/saved">Tersimpan</a>
+
     <a href="#/about">Tentang</a>
   </nav>
 
   <a class="skip-link" href="#main-content" style="position:absolute;left:-9999px;top:-9999px">Lewati ke konten</a>
   <main id="main-content" tabindex="-1"></main>
-
 
   <script>
     setTimeout(function () {

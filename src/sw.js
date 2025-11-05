@@ -130,14 +130,20 @@ self.addEventListener('sync', (e) => {
 self.addEventListener('push', (event) => {
   let data = {};
   try { data = event.data?.json() || {}; } catch { data = {}; }
+
+  // mengikuti catatan
   const title = data.title || 'CeritaPeta';
-  const body  = data.body  || 'Ada cerita baru!';
-  const icon  = data.icon  || '/favicon.png';
+  const body  = (data.options && data.options.body) || data.body || 'Ada cerita baru!';
+  const icon  = (data.options && data.options.icon) || data.icon || '/favicon.png';
   const actions = data.id ? [{ action: `open-${data.id}`, title: 'Lihat detail' }] : [];
+
   event.waitUntil(
-    self.registration.showNotification(title, { body, icon, badge: icon, data, actions })
+    self.registration.showNotification(title, {
+      body, icon, badge: icon, data, actions,
+    })
   );
 });
+
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const id = event.notification.data?.id;

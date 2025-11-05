@@ -1,5 +1,6 @@
 import { getStories } from '../../data/api';
 import CONFIG from '../../config';
+import { addSaved, deleteSaved, getSaved } from '../../data/db';
 
 export default class HomePage {
   async render() {
@@ -34,13 +35,19 @@ export default class HomePage {
 
     const renderList = (items) => {
       container.innerHTML = items.map((s, idx) => `
-        <article class="card" data-idx="${idx}" tabindex="0" aria-labelledby="story-${idx}-title">
+        <article class="card" data-idx="${idx}" data-id="${s.id}" tabindex="0" aria-labelledby="story-${idx}-title">
           <img src="${s.photoUrl || ''}" alt="${s.name ? 'Foto oleh ' + s.name : 'Foto cerita'}" loading="lazy" />
           <div class="card-body">
             <h2 id="story-${idx}-title">${s.name || 'Anonim'}</h2>
             <p class="muted">${new Date(s.createdAt).toLocaleString()}</p>
             <p>${s.description || '(Tanpa deskripsi)'}</p>
             ${s.lat != null && s.lon != null ? `<p class="muted">Lokasi: ${s.lat.toFixed(4)}, ${s.lon.toFixed(4)}</p>` : ''}
+
+            <div class="row" style="display:flex; gap:.5rem; margin-top:.5rem">
+              <button class="btn-save" type="button">Simpan</button>
+              <button class="btn-del"  type="button">Hapus</button>
+            </div>
+            <div class="muted small" data-status></div>
           </div>
         </article>
       `).join('');
@@ -75,6 +82,7 @@ export default class HomePage {
       }
     });
 
+    // klik kartu → fokus ke marker
     container.addEventListener('click', (e) => {
       const card = e.target.closest('.card');
       if (!card) return;
@@ -86,6 +94,45 @@ export default class HomePage {
       }
     });
 
+    // simpan/hapus ke IndexedDB
+    container.addEventListener('click', async (e) => {
+      const btnSave = e.target.closest('.btn-save');
+      const btnDel  = e.target.closest('.btn-del');
+      const card    = e.target.closest('.card');
+      if (!card) return;
+
+      const idx = Number(card.dataset.idx);
+      const story = stories[idx];
+      const statusEl = card.querySelector('[data-status]');
+
+      if (btnSave) {
+        try {
+          await addSaved({
+            id: story.id,
+            name: story.name || 'Anonim',
+            description: story.description || '',
+            photoUrl: story.photoUrl || '',
+            createdAt: story.createdAt,
+            lat: story.lat, lon: story.lon,
+          });
+          statusEl.textContent = 'Tersimpan di perangkat (IndexedDB).';
+        } catch (err) {
+          statusEl.textContent = 'Gagal menyimpan: ' + err.message;
+        }
+        return;
+      }
+
+      if (btnDel) {
+        try {
+          await deleteSaved(story.id);
+          statusEl.textContent = 'Dihapus dari penyimpanan lokal.';
+        } catch (err) {
+          statusEl.textContent = 'Gagal hapus: ' + err.message;
+        }
+      }
+    });
+
+    // filter/cari
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       const term = (q.value || '').toLowerCase();
