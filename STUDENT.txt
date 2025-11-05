@@ -1,4 +1,4 @@
-APP_URL=https://grand-cajeta-84919d.netlify.app/
+APP_URL=https://assignment-project222.netlify.app/#/
 STORY_API_BASE_URL=https://story-api.dicoding.dev/v1
 VAPID_PUBLIC_KEY=BCCs2eonMI-6H2ctvFaWg-UYdDv387Vno_bzUzALpB442r2lCnsHmtrx8biyPi_E-1fSGABK_Qs_GlvPoJJqxbk
 
