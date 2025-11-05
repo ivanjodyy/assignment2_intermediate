@@ -1,0 +1,16 @@
+[build]
+  command = "npm run build"
+  publish  = "dist"
+
+# SPA fallback: semua path diarahkan ke index.html
+[[redirects]]
+  from = "/*"
+  to   = "/index.html"
+  status = 200
+
+# Opsional tapi bagus untuk PWA: pastikan SW boleh di-root dan tidak di-cache agresif
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Service-Worker-Allowed = "/"
+    Cache-Control = "no-cache"
