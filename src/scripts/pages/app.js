@@ -44,11 +44,12 @@ class App {
     if (logout) logout.style.display = hasToken ? '' : 'none';
   }
 
-    _setupDrawer() {
+  _setupDrawer() {
     const btn = this.#drawerButton;
     const drawer = this.#navigationDrawer;
     if (!btn || !drawer) return;
 
+    // optional: pakai class .open seperti sebelumnya
     btn.addEventListener('click', () => {
       const expanded = btn.getAttribute('aria-expanded') === 'true';
       btn.setAttribute('aria-expanded', String(!expanded));
@@ -65,6 +66,7 @@ class App {
       }
     });
   }
+
   async renderPage() {
     this.#content.innerHTML = `<section class="page"><p>Memuat halaman…</p></section>`;
     this._setupAuthNav();
@@ -80,7 +82,12 @@ class App {
       const url = getActiveRoute() || '/';
       let page = routes[url];
 
+      // safety-net: kalau yang datang adalah KELAS, instansiasi
+      if (page && typeof page === 'function') {
+        page = new page();
+      }
 
+      // lazy-load untuk detail
       if (!page && url.startsWith('/detail/')) {
         try {
           const mod = await import('../pages/detail/detail-page');
@@ -90,7 +97,7 @@ class App {
         }
       }
 
-      if (!page) {
+      if (!page || typeof page.render !== 'function') {
         return showError('Route tidak ditemukan', `URL aktif: "${url}". Periksa routes.js.`);
       }
 
@@ -98,7 +105,9 @@ class App {
         try {
           const html = await page.render();
           this.#content.innerHTML = html || '<section class="page"><p>(Halaman tanpa konten)</p></section>';
-          if (page.afterRender) await page.afterRender();
+          if (typeof page.afterRender === 'function') {
+            await page.afterRender();
+          }
           this.#content.setAttribute('tabindex', '-1');
           this.#content.focus();
         } catch (e) {
@@ -106,11 +115,15 @@ class App {
         }
       };
 
-      if (document.startViewTransition) await document.startViewTransition(render).finished;
-      else await render();
+      if (document.startViewTransition) {
+        await document.startViewTransition(render).finished;
+      } else {
+        await render();
+      }
     } catch (err) {
       showError('Kesalahan tak terduga saat renderPage()', err);
     }
   }
 }
+
 export default App;
