@@ -20,12 +20,28 @@ export default class AddPage {
             <input id="photo" name="photo" type="file" accept="image/*"/>
           </div>
 
+          <!-- ✅ A11y fix: fieldset+legend dan label terasosiasi per input -->
           <div style="margin-bottom:.75rem">
-            <label><b>Lokasi</b></label>
-            <div id="map" style="height:380px;border:1px solid #e5e7eb;border-radius:.5rem;margin:.5rem 0;"></div>
-            <input id="lat" name="lat" type="text" placeholder="Latitude" style="width:49%"/>
-            <input id="lon" name="lon" type="text" placeholder="Longitude" style="width:49%"/>
-            <p class="muted">Klik peta untuk mengisi koordinat.</p>
+            <fieldset style="border:0;padding:0;margin:0">
+              <legend><b>Lokasi</b></legend>
+
+              <div id="map" style="height:380px;border:1px solid #e5e7eb;border-radius:.5rem;margin:.5rem 0;"></div>
+
+              <div style="display:flex; gap:2%; align-items:flex-start">
+                <div style="flex:1">
+                  <label for="lat"><b>Latitude</b></label>
+                  <input id="lat" name="lat" type="text" inputmode="decimal" placeholder="-6.200000"
+                         aria-describedby="loc-help" style="width:100%"/>
+                </div>
+                <div style="flex:1">
+                  <label for="lon"><b>Longitude</b></label>
+                  <input id="lon" name="lon" type="text" inputmode="decimal" placeholder="106.816666"
+                         aria-describedby="loc-help" style="width:100%"/>
+                </div>
+              </div>
+
+              <p id="loc-help" class="muted">Klik peta untuk mengisi koordinat.</p>
+            </fieldset>
           </div>
 
           <button type="submit">Kirim</button>
@@ -43,7 +59,6 @@ export default class AddPage {
     const lonEl = document.getElementById('lon');
     const msg   = document.getElementById('add-msg');
 
-    // Inisialisasi peta (Leaflet dari CDN, global: L)
     const map = L.map('map').setView([-2.5, 118], 5);
     L.tileLayer(CONFIG.MAP_TILE_URL, { attribution: CONFIG.MAP_ATTRIBUTION }).addTo(map);
 
@@ -57,14 +72,14 @@ export default class AddPage {
     });
 
     if (!form) return;
-
-    // kecil: helper untuk outbox (IndexedDB) → disinkronkan SW tag 'sync-stories'
     const saveToOutbox = async (row) => {
       const open = indexedDB.open('ceritapeta-db', 1);
       const db = await new Promise((res, rej) => {
         open.onupgradeneeded = () => {
           const d = open.result;
-          if (!d.objectStoreNames.contains('outbox')) d.createObjectStore('outbox', { keyPath: 'id', autoIncrement: true });
+          if (!d.objectStoreNames.contains('outbox')) {
+            d.createObjectStore('outbox', { keyPath: 'id', autoIncrement: true });
+          }
         };
         open.onsuccess = () => res(open.result);
         open.onerror = () => rej(open.error);
@@ -101,8 +116,6 @@ export default class AddPage {
         if (!res.ok || data?.error) {
           throw new Error(data?.message || res.statusText);
         }
-
-        // sukses online: kosongkan cache data agar beranda fetch data baru
         try {
           if ('caches' in window) {
             const keys = await caches.keys();
@@ -113,7 +126,6 @@ export default class AddPage {
         msg.textContent = 'Berhasil menambahkan cerita. Mengalihkan ke beranda...';
         window.location.hash = '#/';
       } catch (e) {
-        // kalau offline / network error → masuk antrean
         if (!navigator.onLine || e.name === 'TypeError') {
           try {
             const row = {
@@ -123,23 +135,19 @@ export default class AddPage {
               lat: latEl.value ? Number(latEl.value) : null,
               lon: lonEl.value ? Number(lonEl.value) : null,
               photoName: photo.files && photo.files[0] ? photo.files[0].name : undefined,
-              // SW bisa kirim Blob bila didukung (browsers modern OK)
               photoBlob: photo.files && photo.files[0] ? photo.files[0] : null,
             };
             await saveToOutbox(row);
 
-            // minta SW sync
             try {
               const reg = await navigator.serviceWorker?.ready;
               await reg?.sync?.register('sync-stories');
             } catch {}
 
             msg.textContent = 'Offline: cerita masuk antrean. Buka lagi saat online untuk mengirim.';
-            // arahkan ke beranda supaya UX konsisten
             setTimeout(() => (window.location.hash = '#/'), 700);
             return;
           } catch {
-            // kalau gagal simpan outbox, jatuh ke pesan gagal biasa
           }
         }
         msg.textContent = 'Gagal: ' + e.message;
